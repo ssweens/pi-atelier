@@ -723,7 +723,7 @@ describe("footer", () => {
 	});
 
 	it("reserves ellipsis width so animated frames never move the model", () => {
-		const working = { ...state, activity: "working" as const, workingLabel: "CLAUDING" };
+		const working = { ...state, activity: "working" as const, workingLabel: "PONDERING" };
 		const lines = ["...", "..", "."].map((dots) =>
 			stripAnsi(
 				renderFooterLine(working, DEFAULT_CONFIG, plainTheme, 160, { colorEnabled: true, workingDots: dots }),
@@ -732,9 +732,9 @@ describe("footer", () => {
 		const modelColumns = lines.map((line) => line.indexOf("gpt-5.6-sol"));
 		expect(modelColumns[0]).toBeGreaterThan(0);
 		expect(new Set(modelColumns).size).toBe(1);
-		expect(lines[0]).toContain(`CLAUDING... ${icons.separator} ${icons.model} gpt-5.6-sol`);
-		expect(lines[1]).toContain(`CLAUDING..  ${icons.separator} ${icons.model} gpt-5.6-sol`);
-		expect(lines[2]).toContain(`CLAUDING.   ${icons.separator} ${icons.model} gpt-5.6-sol`);
+		expect(lines[0]).toContain(`PONDERING... ${icons.separator} ${icons.model} gpt-5.6-sol`);
+		expect(lines[1]).toContain(`PONDERING..  ${icons.separator} ${icons.model} gpt-5.6-sol`);
+		expect(lines[2]).toContain(`PONDERING.   ${icons.separator} ${icons.model} gpt-5.6-sol`);
 	});
 
 	it("animates shrinking dots every 400 ms while retaining the selected phrase", () => {
