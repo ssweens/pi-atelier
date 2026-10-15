@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add a user preference to restore Pi's native footer and prompt while keeping the Atelier sidebar and menu.
+
 ## 0.16.0 — 2026-10-15
 
 - Add optional responsive progress bars to contributed label/value rows; narrow panels retain the label and value without a bar ([#93](https://github.com/michaelmjhhhh/pi-atelier/issues/93)).

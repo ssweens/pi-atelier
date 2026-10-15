@@ -63,7 +63,7 @@ No telemetry and no external network requests. See [Privacy](#privacy).
 
 ## Usage
 
-Open `/atelier` or press **F6** to change display settings, control the sidebar, select models and tools, or view subagent usage.
+Open `/atelier` or press **F6** to change display settings, control the sidebar, select models and tools, or view subagent usage. In **Settings**, toggle **Atelier footer and prompt** to restore Pi's native footer and prompt while keeping the Atelier sidebar and menu.
 
 ```text
 /atelier display              display settings
@@ -104,7 +104,7 @@ Pi supports one custom footer and one custom editor at a time. Extension load or
 | User | `~/.pi/agent/pi-atelier.json` |
 | Project (trusted only) | `<project>/.pi/pi-atelier.json` |
 
-Project settings override user settings, and session changes override both. Font mode, sidebar startup, and notification preferences are user-only.
+Project settings override user settings, and session changes override both. Font mode, sidebar startup, Atelier footer/prompt visibility, and notification preferences are user-only. Set `showAtelierChrome` to `false` to use Pi's native footer and prompt.
 
 ```json
 {
@@ -116,6 +116,7 @@ Project settings override user settings, and session changes override both. Font
   "contextDanger": 90,
   "showSidebarOnStartup": true,
   "showSidebarToolNames": false,
+  "showAtelierChrome": true,
   "completionNotifications": true
 }
 ```

@@ -36,6 +36,7 @@ export const DEFAULT_CONFIG: AtelierConfig = {
 	currencyDecimals: 3,
 	showSidebarToolNames: false,
 	showSidebarOnStartup: true,
+	showAtelierChrome: true,
 	sidebarPanelLayout: cloneLayout(DEFAULT_SIDEBAR_PANEL_LAYOUT),
 	completionNotifications: true,
 };
@@ -61,6 +62,7 @@ const isOrnament = (value: unknown): value is Ornament => value === "none" || va
 /** Settings that only the global User layer may change. */
 const USER_ONLY_KEYS: ReadonlySet<string> = new Set([
 	"showSidebarOnStartup",
+	"showAtelierChrome",
 	"completionNotifications",
 	"nerdFont",
 ]);
@@ -325,6 +327,7 @@ function applyNonDisplay(
 	for (const key of [
 		"showSidebarToolNames",
 		"showSidebarOnStartup",
+		"showAtelierChrome",
 		"completionNotifications",
 		"nerdFont",
 	] as const) {

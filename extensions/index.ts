@@ -288,6 +288,31 @@ export default function atelierExtension(
 		else resetHostUi(ctx);
 	}
 
+	async function setAtelierChrome(
+		ctx: ExtensionContext,
+		visible: boolean,
+		targetSession: ActiveSession,
+	): Promise<void> {
+		const { runtime } = targetSession;
+		const current = runtime.getConfig();
+		if (current.showAtelierChrome === visible) return;
+		runtime.setConfig({ ...current, showAtelierChrome: visible });
+		if (visible) installFooter(targetSession);
+		else clearFooter(targetSession, true);
+		requestAllRenders(targetSession);
+		try {
+			await lifecycleGuardedSavePatch(targetSession)(userConfigPath(), { showAtelierChrome: visible });
+			if (activeSession !== targetSession) return;
+			ctx.ui.notify(`Atelier footer and prompt preference set to ${visible ? "On" : "Off"}`, "info");
+		} catch (error) {
+			if (activeSession !== targetSession) return;
+			ctx.ui.notify(
+				`Atelier footer and prompt preference changed but could not be saved: ${errorMessage(error)}`,
+				"warning",
+			);
+		}
+	}
+
 	async function setSidebarToolNames(
 		ctx: ExtensionContext,
 		visible: boolean | undefined,
@@ -390,7 +415,11 @@ export default function atelierExtension(
 			},
 			() => requestAllRenders(current),
 			lifecycleGuardedSavePatch(current),
-			{ lifetime: current.overlayLifetime, openUsage: () => openUsage(ctx, current) },
+			{
+				lifetime: current.overlayLifetime,
+				openUsage: () => openUsage(ctx, current),
+				setAtelierChrome: (visible) => setAtelierChrome(ctx, visible, current),
+			},
 		);
 	}
 
@@ -413,6 +442,7 @@ export default function atelierExtension(
 	}
 
 	function installFooter(targetSession: ActiveSession): void {
+		if (!enabled || !targetSession.runtime.getConfig().showAtelierChrome) return;
 		const { ctx, token, retiredState, retiredConfig } = targetSession;
 		const generation = ++targetSession.footerGeneration;
 		let editor: AtelierEditor | undefined;

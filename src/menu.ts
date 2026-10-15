@@ -44,6 +44,7 @@ interface MenuOptions {
 
 interface ControlCenterOptions extends MenuOptions {
 	openUsage?(): Promise<void>;
+	setAtelierChrome?(enabled: boolean): Promise<void>;
 }
 
 const THINKING_LEVELS: readonly ThinkingLevel[] = ["off", "minimal", "low", "medium", "high", "xhigh", "max"];
@@ -391,6 +392,15 @@ export async function openAtelierControlCenter(
 					label: `Display: ${runtime.getDisplaySettings().preset}`,
 					description: "Session overrides, preview, Undo, Revert, and Save",
 				},
+				...(options.setAtelierChrome
+					? [
+							{
+								value: "atelier-chrome",
+								label: `Atelier footer and prompt: ${onOff(config.showAtelierChrome)}`,
+								description: "Global user preference; off restores Pi's native footer and prompt",
+							},
+						]
+					: []),
 				{
 					value: "font-mode",
 					label: `Font mode: ${config.nerdFont ? "Nerd Font" : "Plain text"}`,
@@ -424,6 +434,9 @@ export async function openAtelierControlCenter(
 						savePatch,
 						options,
 					);
+					break;
+				case "atelier-chrome":
+					await options.setAtelierChrome?.(!runtime.getConfig().showAtelierChrome);
 					break;
 				case "font-mode":
 					await actions.setNerdFont(!runtime.getConfig().nerdFont);

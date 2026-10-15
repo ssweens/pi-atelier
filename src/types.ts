@@ -79,6 +79,7 @@ export interface AtelierConfig extends DisplaySettings {
 	currencyDecimals: number;
 	showSidebarToolNames: boolean;
 	showSidebarOnStartup: boolean;
+	showAtelierChrome: boolean;
 	sidebarPanelLayout: SidebarPanelLayout;
 	completionNotifications: boolean;
 }
