@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add a user preference to restore Pi's native footer and prompt while keeping the Atelier sidebar and menu.
+- Default to Pi's native footer and prompt; enable Atelier's footer/prompt from Control Center → Settings while keeping the Atelier sidebar and menu.
 
 ## 0.16.0 — 2026-10-15
 

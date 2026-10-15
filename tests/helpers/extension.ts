@@ -12,8 +12,12 @@ import { loadConfig as loadAtelierConfig, resolveConfig } from "../../src/config
 import { plainTheme, stripAnsi } from "./render.js";
 
 let persistedConfig = false;
+// Most extension tests exercise Atelier's custom footer/editor. Opt in explicitly so
+// those tests stay independent of the product's default preference.
 export const loadTestConfig: typeof loadAtelierConfig = (options) =>
-	persistedConfig ? loadAtelierConfig(options) : Promise.resolve(resolveConfig({}));
+	persistedConfig
+		? loadAtelierConfig(options)
+		: Promise.resolve(resolveConfig({ user: { showAtelierChrome: true } }));
 
 export function loadConfigAfter(gate: ReturnType<typeof deferred<void>>): typeof loadAtelierConfig {
 	return async (options) => {
@@ -257,7 +261,11 @@ export async function withPersistedUserConfig(
 	const previous = process.env.PI_CODING_AGENT_DIR;
 	const agentDir = await mkdtemp(join(tmpdir(), "pi-atelier-extension-"));
 	try {
-		await writeFile(join(agentDir, "pi-atelier.json"), JSON.stringify(config), "utf8");
+		await writeFile(
+			join(agentDir, "pi-atelier.json"),
+			JSON.stringify({ showAtelierChrome: true, ...config }),
+			"utf8",
+		);
 		process.env.PI_CODING_AGENT_DIR = agentDir;
 		persistedConfig = true;
 		await run();

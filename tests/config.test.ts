@@ -116,6 +116,7 @@ describe("configuration validation", () => {
 			contextDanger: 80,
 			showSidebarToolNames: "yes",
 			showSidebarOnStartup: "yes",
+			showAtelierChrome: "yes",
 		});
 		expect(result.config.contextWarning).toBe(70);
 		expect(result.warnings).toEqual(
@@ -123,8 +124,11 @@ describe("configuration validation", () => {
 				expect.stringContaining("threshold"),
 				"showSidebarToolNames must be boolean",
 				"showSidebarOnStartup must be boolean",
+				"showAtelierChrome must be boolean",
 			]),
 		);
+		expect(validateConfig({}).config.showAtelierChrome).toBe(false);
+		expect(validateConfig({ showAtelierChrome: true }).config.showAtelierChrome).toBe(true);
 	});
 
 	it("rejects non-boolean showSidebarAgent with warning", () => {
@@ -165,6 +169,18 @@ describe("configuration files", () => {
 			session: { [key]: true },
 		});
 		expect(result.config).toMatchObject(expected);
+	});
+
+	it.each([false, true])("keeps showAtelierChrome=%s as a global user preference", async (visible) => {
+		await writeJson(userPath, { showAtelierChrome: visible });
+		await writeJson(projectPath, { showAtelierChrome: !visible });
+		const result = await loadConfig({
+			userPath,
+			projectPath,
+			projectTrusted: true,
+			session: { showAtelierChrome: !visible },
+		});
+		expect(result.config.showAtelierChrome).toBe(visible);
 	});
 
 	it("loads an ordered global Sidebar layout with deterministic compatibility precedence", async () => {

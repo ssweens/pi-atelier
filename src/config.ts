@@ -36,7 +36,7 @@ export const DEFAULT_CONFIG: AtelierConfig = {
 	currencyDecimals: 3,
 	showSidebarToolNames: false,
 	showSidebarOnStartup: true,
-	showAtelierChrome: true,
+	showAtelierChrome: false,
 	sidebarPanelLayout: cloneLayout(DEFAULT_SIDEBAR_PANEL_LAYOUT),
 	completionNotifications: true,
 };

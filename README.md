@@ -104,7 +104,7 @@ Pi supports one custom footer and one custom editor at a time. Extension load or
 | User | `~/.pi/agent/pi-atelier.json` |
 | Project (trusted only) | `<project>/.pi/pi-atelier.json` |
 
-Project settings override user settings, and session changes override both. Font mode, sidebar startup, Atelier footer/prompt visibility, and notification preferences are user-only. Set `showAtelierChrome` to `false` to use Pi's native footer and prompt.
+Project settings override user settings, and session changes override both. Font mode, sidebar startup, Atelier footer/prompt visibility, and notification preferences are user-only. Pi's native footer and prompt are the default. Set `showAtelierChrome` to `true` or use Control Center → Settings to enable Atelier's footer and prompt.
 
 ```json
 {
@@ -116,7 +116,7 @@ Project settings override user settings, and session changes override both. Font
   "contextDanger": 90,
   "showSidebarOnStartup": true,
   "showSidebarToolNames": false,
-  "showAtelierChrome": true,
+  "showAtelierChrome": false,
   "completionNotifications": true
 }
 ```
