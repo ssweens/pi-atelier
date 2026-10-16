@@ -15,10 +15,8 @@ import {
 	type SpawnNotificationProcess,
 } from "../src/completion-notifier.js";
 import { DEFAULT_CONFIG, loadConfig, saveUserConfigPatch } from "../src/config.js";
-import { AtelierEditor } from "../src/editor.js";
-import { type AtelierFooterComponent, createFooterComponent } from "../src/footer.js";
-import { createImageCompositorBinding } from "../src/image-compositor.js";
-import { openAtelierControlCenter, openDisplaySettingsWorkspace, sidebarStatusLabel } from "../src/menu.js";
+import type { AtelierEditor } from "../src/editor.js";
+import type { AtelierFooterComponent } from "../src/footer.js";
 import type { OverlayLifetime } from "../src/overlay-lifecycle.js";
 import { createRunActivityTracker, type RunActivityTracker } from "../src/run-activity.js";
 import type { SidebarPanelSetting } from "../src/settings-workspace.js";
@@ -36,7 +34,6 @@ import {
 } from "../src/sidebar-panels.js";
 import { AtelierRuntime, createInertAtelierState } from "../src/state.js";
 import { emptySubagentUsage } from "../src/subagent-usage.js";
-import { openSubagentUsage } from "../src/subagent-usage-view.js";
 import { errorMessage, isColorEnabled, isRecord } from "../src/text.js";
 import { reconstructTodos, todosFromDetails } from "../src/todos.js";
 import type { AtelierConfig, AtelierState, FooterState, NormalizedTodo } from "../src/types.js";
@@ -297,7 +294,7 @@ export default function atelierExtension(
 		const current = runtime.getConfig();
 		if (current.showAtelierChrome === visible) return;
 		runtime.setConfig({ ...current, showAtelierChrome: visible });
-		if (visible) installFooter(targetSession);
+		if (visible) await installFooter(targetSession);
 		else clearFooter(targetSession, true);
 		requestAllRenders(targetSession);
 		try {
@@ -381,6 +378,7 @@ export default function atelierExtension(
 		}
 		await current.runtime.refreshSubagentUsage();
 		if (activeSession !== current || !enabled || !ctx.isProjectTrusted()) return;
+		const { openSubagentUsage } = await import("../src/subagent-usage-view.js");
 		await openSubagentUsage(
 			ctx,
 			current.runtime.getState().subagentUsage ?? emptySubagentUsage(),
@@ -393,6 +391,7 @@ export default function atelierExtension(
 		const current = requireActiveSession(ctx);
 		if (!current) return;
 		const { runtime, sidebar } = current;
+		const { openAtelierControlCenter } = await import("../src/menu.js");
 		const isCurrent = (): boolean => activeSession === current;
 		await openAtelierControlCenter(
 			pi,
@@ -430,6 +429,7 @@ export default function atelierExtension(
 		}
 		const current = requireActiveSession(ctx);
 		if (!current) return;
+		const { openDisplaySettingsWorkspace } = await import("../src/menu.js");
 		await openDisplaySettingsWorkspace(
 			ctx,
 			current.runtime,
@@ -441,8 +441,16 @@ export default function atelierExtension(
 		);
 	}
 
-	function installFooter(targetSession: ActiveSession): void {
+	async function installFooter(targetSession: ActiveSession): Promise<void> {
 		if (!enabled || !targetSession.runtime.getConfig().showAtelierChrome) return;
+		const [{ AtelierEditor }, { createFooterComponent }, { createImageCompositorBinding }] =
+			await Promise.all([
+				import("../src/editor.js"),
+				import("../src/footer.js"),
+				import("../src/image-compositor.js"),
+			]);
+		if (!enabled || activeSession !== targetSession || !targetSession.runtime.getConfig().showAtelierChrome)
+			return;
 		const { ctx, token, retiredState, retiredConfig } = targetSession;
 		const generation = ++targetSession.footerGeneration;
 		let editor: AtelierEditor | undefined;
@@ -591,6 +599,7 @@ export default function atelierExtension(
 				else if (sidebarAction === "on") current.sidebar.show();
 				else if (sidebarAction === "off") current.sidebar.hide();
 				else current.sidebar.toggle();
+				const { sidebarStatusLabel } = await import("../src/menu.js");
 				ctx.ui.notify(`Sidebar: ${sidebarStatusLabel(current.sidebar.getStatus())}`, "info");
 			},
 			disable: (ctx) => {
@@ -606,14 +615,14 @@ export default function atelierExtension(
 				clearFooter(current, true);
 				ctx.ui.notify("Pi Atelier disabled", "info");
 			},
-			enable: (ctx) => {
+			enable: async (ctx) => {
 				const current = requireActiveSession(ctx);
 				if (!current) return;
 				if (!enabled) {
 					enabled = true;
 					current.todos = reconstructTodos(current.ctx);
 					current.runtime.setEnabled(true);
-					installFooter(current);
+					await installFooter(current);
 				}
 				ctx.ui.notify("Pi Atelier enabled", "info");
 			},
@@ -806,7 +815,7 @@ export default function atelierExtension(
 			registerCustomShortcut(ctx, loaded.config.shortcut);
 			session.sidebar.setMode("manual");
 			if (enabled) {
-				installFooter(session);
+				await installFooter(session);
 				if (loaded.config.showSidebarOnStartup) session.sidebar.show();
 			}
 			void session.runtime.flushWorkspacePulseRefresh();
