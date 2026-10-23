@@ -1,6 +1,5 @@
 import { isDeepStrictEqual } from "node:util";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { selectWorkingPhrase } from "./activity.js";
 import { resolveDisplayLayers } from "./config.js";
 import { cloneLayout } from "./display.js";
 import { aggregateMetrics, type UsageMessage } from "./metrics.js";
@@ -40,7 +39,6 @@ export interface RuntimeDependencies {
 	displayProvenance: DisplayProvenance;
 	autoCompact: boolean | null;
 	enabled?: boolean;
-	random?: () => number;
 	requestRender(): void;
 	inspectWorkspace?(signal: AbortSignal): Promise<WorkspacePulseInspection>;
 }
@@ -69,7 +67,6 @@ export class AtelierRuntime {
 	readonly #pi: ExtensionAPI;
 	readonly #ctx: ExtensionContext;
 	readonly #autoCompact: boolean | null;
-	readonly #random: () => number;
 	readonly #requestRender: () => void;
 	readonly #workspacePulseRefresh: WorkspacePulseRefresh;
 	#config: AtelierConfig;
@@ -94,7 +91,6 @@ export class AtelierRuntime {
 		this.#displayProvenance = dependencies.displayProvenance;
 		this.#autoCompact = dependencies.autoCompact;
 		this.#enabled = dependencies.enabled ?? true;
-		this.#random = dependencies.random ?? Math.random;
 		this.#requestRender = dependencies.requestRender;
 		const inspectWorkspace = async (signal: AbortSignal): Promise<WorkspacePulseInspection> => {
 			if (!this.#isLiveAndTrusted()) return { kind: "unavailable" };
@@ -272,10 +268,7 @@ export class AtelierRuntime {
 
 	setActivity(activity: ActivityState): void {
 		if (this.#state.activity === activity) return;
-		this.#state =
-			activity === "working"
-				? { ...this.#state, activity, workingLabel: selectWorkingPhrase(this.#random()) }
-				: { ...this.#state, activity };
+		this.#state = { ...this.#state, activity };
 		this.#invalidate();
 	}
 

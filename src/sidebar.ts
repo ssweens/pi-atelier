@@ -162,10 +162,9 @@ function agentRows(
 ): string[] {
 	const working = snapshot.activity === "working";
 	const label = working ? "Working" : "Ready";
-	const phrase = working && snapshot.workingLabel ? ` · ${sanitizeInline(snapshot.workingLabel)}` : "";
 	const knownModel = Boolean(snapshot.modelId || snapshot.provider);
 	return [
-		theme.bold(palette.paint(snapshot.activity, `${working ? "◆" : "●"} ${label}${phrase}`)),
+		theme.bold(palette.paint(snapshot.activity, `${working ? "◆" : "●"} ${label}`)),
 		theme.bold(valueRow(snapshot.modelId, palette, "primary")),
 		valueRow(snapshot.provider, palette, "muted"),
 		labeledRow(
