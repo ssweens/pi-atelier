@@ -1,4 +1,5 @@
 import { basename, join } from "node:path";
+import { truncateToWidth, type KeyId } from "@earendil-works/pi-tui";
 import {
 	CONFIG_DIR_NAME,
 	type ExtensionAPI,
@@ -7,7 +8,6 @@ import {
 	getAgentDir,
 	SettingsManager,
 } from "@earendil-works/pi-coding-agent";
-import type { KeyId } from "@earendil-works/pi-tui";
 import {
 	type CompletionNotification,
 	type CompletionNotifier,
@@ -15,6 +15,7 @@ import {
 	type SpawnNotificationProcess,
 } from "../src/completion-notifier.js";
 import { DEFAULT_CONFIG, loadConfig, saveUserConfigPatch } from "../src/config.js";
+import { displayHomePath } from "../src/display-path.js";
 import type { AtelierEditor } from "../src/editor.js";
 import type { AtelierFooterComponent } from "../src/footer.js";
 import type { OverlayLifetime } from "../src/overlay-lifecycle.js";
@@ -34,7 +35,7 @@ import {
 } from "../src/sidebar-panels.js";
 import { AtelierRuntime, createInertAtelierState } from "../src/state.js";
 import { emptySubagentUsage } from "../src/subagent-usage.js";
-import { errorMessage, isColorEnabled, isRecord } from "../src/text.js";
+import { errorMessage, isColorEnabled, isRecord, sanitizeInline } from "../src/text.js";
 import { reconstructTodos, todosFromDetails } from "../src/todos.js";
 import type { AtelierConfig, AtelierState, FooterState, NormalizedTodo } from "../src/types.js";
 
@@ -295,7 +296,10 @@ export default function atelierExtension(
 		if (current.showAtelierChrome === visible) return;
 		runtime.setConfig({ ...current, showAtelierChrome: visible });
 		if (visible) await installFooter(targetSession);
-		else clearFooter(targetSession, true);
+		else {
+			clearFooter(targetSession, true);
+			await installFooter(targetSession);
+		}
 		requestAllRenders(targetSession);
 		try {
 			await lifecycleGuardedSavePatch(targetSession)(userConfigPath(), { showAtelierChrome: visible });
@@ -441,8 +445,59 @@ export default function atelierExtension(
 		);
 	}
 
+	function installPreservedFooter(targetSession: ActiveSession): void {
+		const { ctx, token } = targetSession;
+		const generation = ++targetSession.footerGeneration;
+		const getCurrentSession = (): ActiveSession | undefined => {
+			const current = activeSession;
+			return enabled &&
+				current?.token === token &&
+				current.footerGeneration === generation &&
+				!current.runtime.getConfig().showAtelierChrome
+				? current
+				: undefined;
+		};
+		ctx.ui.setFooter((tui, theme, footerData) => {
+			const footerRequestRender = (): void => {
+				if (getCurrentSession()) tui.requestRender();
+			};
+			const current = getCurrentSession();
+			if (current) current.requestFooterRender = footerRequestRender;
+			const unsubscribe = footerData.onBranchChange(() => {
+				const currentSession = getCurrentSession();
+				if (!currentSession) return;
+				void currentSession.runtime.flushWorkspacePulseRefresh();
+				footerRequestRender();
+			});
+			const component = {
+				render(width: number): string[] {
+					if (width <= 0) return [];
+					const currentSession = getCurrentSession();
+					if (!currentSession) return [];
+					let line = displayHomePath(currentSession.ctx.sessionManager.getCwd());
+					const branch = footerData.getGitBranch();
+					if (branch) line += ` (${branch})`;
+					const sessionName = currentSession.ctx.sessionManager.getSessionName();
+					if (sessionName) line += ` • ${sessionName}`;
+					const dimLine = theme.fg("dim", sanitizeInline(line));
+					return [truncateToWidth(dimLine, width, theme.fg("dim", "..."))];
+				},
+				invalidate() {},
+				dispose: unsubscribe,
+			};
+			const session = getCurrentSession();
+			if (session) session.footerDisposer = component.dispose;
+			else component.dispose();
+			return component;
+		});
+	}
+
 	async function installFooter(targetSession: ActiveSession): Promise<void> {
-		if (!enabled || !targetSession.runtime.getConfig().showAtelierChrome) return;
+		if (!enabled) return;
+		if (!targetSession.runtime.getConfig().showAtelierChrome) {
+			installPreservedFooter(targetSession);
+			return;
+		}
 		const [{ AtelierEditor }, { createFooterComponent }, { createImageCompositorBinding }] =
 			await Promise.all([
 				import("../src/editor.js"),

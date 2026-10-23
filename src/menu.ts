@@ -397,7 +397,8 @@ export async function openAtelierControlCenter(
 							{
 								value: "atelier-chrome",
 								label: `Atelier footer and prompt: ${onOff(config.showAtelierChrome)}`,
-								description: "Global user preference; off restores Pi's native footer and prompt",
+								description:
+									"Global preference; off keeps Pi's working-directory footer line without usage/model stats and restores Pi's prompt",
 							},
 						]
 					: []),
