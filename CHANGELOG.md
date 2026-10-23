@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Default to Pi's native footer and prompt; enable Atelier's footer/prompt from Control Center → Settings while keeping the Atelier sidebar and menu.
+- Preserve the original footer's working-directory line (plus extension statuses) with the native footer/prompt mode, while dropping Pi's usage and model stats row; the full native footer returns when Atelier is disabled.
+- Drop the decorative working phrases; the Agent box and footer show plain `Working`/`READY` states with the animated dots.
+- Narrow the default Sidebar width to 40 columns; Auto mode now collapses below 120 columns and reopens at 128, and preferred widths are unchanged.
 
 ## 0.16.0 — 2026-10-15
 
