@@ -480,7 +480,21 @@ export default function atelierExtension(
 					const sessionName = currentSession.ctx.sessionManager.getSessionName();
 					if (sessionName) line += ` • ${sessionName}`;
 					const dimLine = theme.fg("dim", sanitizeInline(line));
-					return [truncateToWidth(dimLine, width, theme.fg("dim", "..."))];
+					const rows = [truncateToWidth(dimLine, width, theme.fg("dim", "..."))];
+					const statuses = footerData.getExtensionStatuses();
+					if (statuses.size > 0) {
+						const statusLine = Array.from(statuses.entries())
+							.sort(([left], [right]) => left.localeCompare(right))
+							.map(([, text]) =>
+								text
+									.replace(/[\r\n\t]/g, " ")
+									.replace(/ +/g, " ")
+									.trim(),
+							)
+							.join(" ");
+						rows.push(truncateToWidth(statusLine, width, theme.fg("dim", "...")));
+					}
+					return rows;
 				},
 				invalidate() {},
 				dispose: unsubscribe,
