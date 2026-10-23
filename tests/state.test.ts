@@ -219,7 +219,6 @@ describe("AtelierRuntime", () => {
 
 		const state = runtime.getState();
 		expect(state.branch).toBeUndefined();
-		expect(state.workingLabel).toBeUndefined();
 		expect(state.activity).toBe("ready");
 		expect(state.dirty).toBe(false);
 		expect(state.extensionStatuses).toEqual([]);
@@ -242,7 +241,6 @@ describe("AtelierRuntime", () => {
 		runtime.refreshUsage();
 
 		expect(runtime.getState()).toMatchObject({ activity: "working" });
-		expect(runtime.getState().workingLabel).toBeUndefined();
 		expect(requestRender).toHaveBeenCalledTimes(2);
 	});
 
@@ -305,7 +303,6 @@ describe("AtelierRuntime", () => {
 		runtime.setConfig({ ...DEFAULT_CONFIG, preset: "minimal" });
 
 		expect(runtime.getState()).toMatchObject({ activity: "working" });
-		expect(runtime.getState().workingLabel).toBeUndefined();
 		expect(runtime.getConfig().preset).toBe("minimal");
 		expect(requestRender).toHaveBeenCalledTimes(4);
 	});

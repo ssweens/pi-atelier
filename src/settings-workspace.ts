@@ -97,7 +97,6 @@ const cloneOverride = (value: SessionDisplayOverride | undefined): SessionDispla
 
 const representativeState: FooterState = {
 	activity: "working",
-	workingLabel: "CRAFTING",
 	modelId: "artisan-1",
 	provider: "atelier",
 	thinkingLevel: "high",

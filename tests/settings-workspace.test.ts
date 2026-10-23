@@ -221,7 +221,7 @@ describe("Display Settings Workspace", () => {
 		const previewStart = lines.findIndex((line) => line.includes(" Preview "));
 		expect(lines.every((line) => visibleWidth(line) <= width)).toBe(true);
 		expect(previewStart).toBeGreaterThan(0);
-		expect(lines[previewStart + 1]).toContain("CRAFTING");
+		expect(lines[previewStart + 1]).toContain("WORKING");
 		expect(lines[previewStart + 2]).toContain("└");
 	});
 

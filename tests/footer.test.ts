@@ -295,17 +295,17 @@ describe("composer header and telemetry", () => {
 		vi.useFakeTimers();
 		const requestRender = vi.fn();
 		const component = createFooter({
-			getState: () => ({ ...session, activity: "working", workingLabel: "PONDERING" }),
+			getState: () => ({ ...session, activity: "working" }),
 			getConfig: () => config,
 			requestRender,
 		});
-		expect(component.renderHeader(160)).toContain("PONDERING...");
-		expect(component.renderTelemetry(160)[0]).not.toContain("PONDERING");
+		expect(component.renderHeader(160)).toContain("WORKING...");
+		expect(component.renderTelemetry(160)[0]).not.toContain("WORKING");
 		expect(vi.getTimerCount()).toBe(1);
 		vi.advanceTimersByTime(400);
 		expect(requestRender).toHaveBeenCalledOnce();
 		component.renderTelemetry(160);
-		expect(component.renderHeader(160)).toContain("PONDERING.. ");
+		expect(component.renderHeader(160)).toContain("WORKING.. ");
 		expect(component.renderHeader(16)).toBe("");
 		component.renderTelemetry(160);
 		expect(vi.getTimerCount()).toBe(0);
@@ -470,13 +470,13 @@ describe("footer", () => {
 	it("uses state-specific activity colors", () => {
 		const ready = renderFooterLine(state, DEFAULT_CONFIG, namedTheme("dark"), 180);
 		const working = renderFooterLine(
-			{ ...state, activity: "working", workingLabel: "PONDERING" },
+			{ ...state, activity: "working" },
 			DEFAULT_CONFIG,
 			namedTheme("dark"),
 			180,
 		);
 		expect(ready).toContain(`${darkRgb.blue}● READY\u001b[39m`);
-		expect(working).toContain(`${darkRgb.amber}● PONDERING...\u001b[39m`);
+		expect(working).toContain(`${darkRgb.amber}● WORKING...\u001b[39m`);
 	});
 
 	it("overrides context blue at warning and danger thresholds", () => {
@@ -625,13 +625,13 @@ describe("footer", () => {
 		expect(ornament).toContain("hit 98.8%");
 
 		const compact = renderFooterLine(
-			{ ...state, activity: "working", workingLabel: "PONDERING" },
+			{ ...state, activity: "working" },
 			{ ...DEFAULT_CONFIG, density: "compact" },
 			plainTheme,
 			160,
 		);
 		expect(compact).toContain("● WORKING");
-		expect(compact).not.toContain("PONDERING");
+		expect(compact).not.toContain("WORKING...");
 
 		const reordered = renderFooterLine(state, withVisible(["context", "metrics"]), plainTheme, 160);
 		expect(reordered).toContain(`${icons.context} 27.0%`);
@@ -723,7 +723,7 @@ describe("footer", () => {
 	});
 
 	it("reserves ellipsis width so animated frames never move the model", () => {
-		const working = { ...state, activity: "working" as const, workingLabel: "PONDERING" };
+		const working = { ...state, activity: "working" as const };
 		const lines = ["...", "..", "."].map((dots) =>
 			stripAnsi(
 				renderFooterLine(working, DEFAULT_CONFIG, plainTheme, 160, { colorEnabled: true, workingDots: dots }),
@@ -732,27 +732,26 @@ describe("footer", () => {
 		const modelColumns = lines.map((line) => line.indexOf("gpt-5.6-sol"));
 		expect(modelColumns[0]).toBeGreaterThan(0);
 		expect(new Set(modelColumns).size).toBe(1);
-		expect(lines[0]).toContain(`PONDERING... ${icons.separator} ${icons.model} gpt-5.6-sol`);
-		expect(lines[1]).toContain(`PONDERING..  ${icons.separator} ${icons.model} gpt-5.6-sol`);
-		expect(lines[2]).toContain(`PONDERING.   ${icons.separator} ${icons.model} gpt-5.6-sol`);
+		expect(lines[0]).toContain(`WORKING... ${icons.separator} ${icons.model} gpt-5.6-sol`);
+		expect(lines[1]).toContain(`WORKING..  ${icons.separator} ${icons.model} gpt-5.6-sol`);
+		expect(lines[2]).toContain(`WORKING.   ${icons.separator} ${icons.model} gpt-5.6-sol`);
 	});
 
-	it("animates shrinking dots every 400 ms while retaining the selected phrase", () => {
+	it("animates shrinking dots every 400 ms", () => {
 		vi.useFakeTimers();
 		const requestRender = vi.fn();
-		const working = { ...state, activity: "working" as const, workingLabel: "PHOTOSYNTHESIZING" };
+		const working = { ...state, activity: "working" as const };
 		const component = createFooter({ getState: () => working, requestRender });
 
-		expect(component.render(160)[0]).toContain("PHOTOSYNTHESIZING...");
+		expect(component.render(160)[0]).toContain("WORKING...");
 		expect(vi.getTimerCount()).toBe(1);
 		vi.advanceTimersByTime(400);
 		expect(requestRender).toHaveBeenCalledTimes(1);
-		expect(component.render(160)[0]).toContain("PHOTOSYNTHESIZING..");
+		expect(component.render(160)[0]).toContain("WORKING..");
 		vi.advanceTimersByTime(400);
-		expect(component.render(160)[0]).toContain("PHOTOSYNTHESIZING.");
+		expect(component.render(160)[0]).toContain("WORKING.");
 		vi.advanceTimersByTime(400);
-		expect(component.render(160)[0]).toContain("PHOTOSYNTHESIZING...");
-		expect(component.render(160)[0]).not.toContain("WORKING");
+		expect(component.render(160)[0]).toContain("WORKING...");
 	});
 
 	it("animates only when the full working status is visible and resets after stopping", () => {
@@ -760,13 +759,12 @@ describe("footer", () => {
 		let current: AtelierState = {
 			...state,
 			activity: "working",
-			workingLabel: "PONDERING",
 		};
 		let config = DEFAULT_CONFIG;
 		const requestRender = vi.fn();
 		const component = createFooter({ getState: () => current, getConfig: () => config, requestRender });
 
-		expect(component.render(20)[0]).not.toContain("PONDERING");
+		expect(component.render(20)[0]).not.toContain("WORKING...");
 		expect(vi.getTimerCount()).toBe(0);
 		config = {
 			...DEFAULT_CONFIG,
@@ -774,19 +772,19 @@ describe("footer", () => {
 				entry.id === "activity" ? { ...entry, visible: false } : { ...entry },
 			),
 		};
-		expect(component.render(100)[0]).not.toContain("PONDERING");
+		expect(component.render(100)[0]).not.toContain("WORKING");
 		expect(vi.getTimerCount()).toBe(0);
 		config = DEFAULT_CONFIG;
-		expect(component.render(100)[0]).toContain("PONDERING...");
+		expect(component.render(100)[0]).toContain("WORKING...");
 		expect(vi.getTimerCount()).toBe(1);
 		vi.advanceTimersByTime(400);
-		expect(component.render(100)[0]).toContain("PONDERING..");
+		expect(component.render(100)[0]).toContain("WORKING..");
 
 		current = { ...state, activity: "ready" };
 		expect(component.render(100)[0]).toContain("READY");
 		expect(vi.getTimerCount()).toBe(0);
-		current = { ...state, activity: "working", workingLabel: "PONDERING" };
-		expect(component.render(100)[0]).toContain("PONDERING...");
+		current = { ...state, activity: "working" };
+		expect(component.render(100)[0]).toContain("WORKING...");
 	});
 
 	it("does not animate when an omitted activity label appears in another segment", () => {
@@ -795,8 +793,7 @@ describe("footer", () => {
 			getState: () => ({
 				...state,
 				activity: "working",
-				workingLabel: "PONDERING",
-				modelId: "PONDERING",
+				modelId: "WORKING",
 			}),
 			getConfig: () => ({
 				...DEFAULT_CONFIG,
@@ -806,20 +803,20 @@ describe("footer", () => {
 			}),
 		});
 
-		expect(component.render(100)[0]).toContain("PONDERING");
+		expect(component.render(100)[0]).toContain("WORKING");
 		expect(vi.getTimerCount()).toBe(0);
 	});
 
 	it("renders the full working phrase and dots in fixed amber for custom themes", () => {
 		const fg = vi.fn((_color: string, text: string) => text);
 		const bold = vi.fn((text: string) => `<b>${text}</b>`);
-		const working = { ...state, activity: "working" as const, workingLabel: "PONDERING" };
+		const working = { ...state, activity: "working" as const };
 		const line = renderFooterLine(working, DEFAULT_CONFIG, { name: "nord", fg, bold }, 160, {
 			colorEnabled: true,
 			workingDots: "..",
 		});
 
-		expect(line).toContain(`${darkRgb.amber}<b>● PONDERING.. </b>\u001b[39m`);
+		expect(line).toContain(`${darkRgb.amber}<b>● WORKING.. </b>\u001b[39m`);
 		expect(fg).not.toHaveBeenCalled();
 	});
 
@@ -829,15 +826,6 @@ describe("footer", () => {
 	] as const)("renders %s with the expected fallback label", (activity, expected) => {
 		const line = renderFooterLine({ ...state, activity }, DEFAULT_CONFIG, plainTheme, 160);
 		expect(line).toContain(activity === "working" ? `${expected}...` : expected);
-	});
-
-	it("keeps the longest working phrase within responsive width limits", () => {
-		const working = { ...state, activity: "working" as const, workingLabel: "PHOTOSYNTHESIZING" };
-		for (const width of [132, 131, 96, 95, 72, 71, 56, 55, 20]) {
-			expect(visibleWidth(renderFooterLine(working, DEFAULT_CONFIG, plainTheme, width))).toBeLessThanOrEqual(
-				width,
-			);
-		}
 	});
 
 	it("disposes its branch subscription exactly once", () => {
@@ -862,7 +850,7 @@ describe("footer", () => {
 		vi.useFakeTimers();
 		const requestRender = vi.fn();
 		const component = createFooter({
-			getState: () => ({ ...state, activity: "working", workingLabel: "PONDERING" }),
+			getState: () => ({ ...state, activity: "working" }),
 			requestRender,
 		});
 		component.render(160);
@@ -871,7 +859,7 @@ describe("footer", () => {
 		expect(vi.getTimerCount()).toBe(0);
 		vi.advanceTimersByTime(800);
 		expect(requestRender).not.toHaveBeenCalled();
-		expect(component.render(160)[0]).toContain("PONDERING...");
+		expect(component.render(160)[0]).toContain("WORKING...");
 		expect(vi.getTimerCount()).toBe(0);
 	});
 });

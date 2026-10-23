@@ -321,7 +321,6 @@ describe("sidebar snapshot and layout", () => {
 		const expandedConfig = { ...DEFAULT_CONFIG, showSidebarToolNames: true };
 		const compact = renderRows(snapshot(), { config: expandedConfig, width: 28, color: false });
 		expect(compact).toContain("◆ Working");
-		expect(compact.join("\n")).not.toContain("GITIFYING");
 		expect(compact).toContain("gpt-5.6-sol");
 		expect(compact).toContain("openai-codex");
 		expect(compact).toContainEqual(expect.stringMatching(/^Thinking\s+medium$/));
@@ -345,7 +344,6 @@ describe("sidebar snapshot and layout", () => {
 		const expandedConfig = { ...DEFAULT_CONFIG, showSidebarToolNames: true };
 		const compact = renderRows(snapshot(), { config: expandedConfig, width: 39, color: false });
 		expect(compact).toContain("◆ Working");
-		expect(compact.join("\n")).not.toContain("GITIFYING");
 		expect(compact).toContain("gpt-5.6-sol");
 		expect(compact).not.toContainEqual(expect.stringMatching(/^◆ Working.*gpt-5\.6-sol$/));
 

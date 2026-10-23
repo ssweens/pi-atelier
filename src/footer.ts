@@ -147,10 +147,12 @@ function activityText(
 	nerdFont: boolean,
 ): string {
 	const fallback = state.activity.toUpperCase();
-	const label = state.activity === "working" && !compact ? (state.workingLabel ?? fallback) : fallback;
 	const dots =
 		state.activity === "working" && !compact ? workingDots.padEnd(WORKING_DOT_FRAMES[0].length, " ") : "";
-	return palette.paint(state.activity, theme.bold(`${nerdFont ? "● " : ""}${sanitizeInline(label)}${dots}`));
+	return palette.paint(
+		state.activity,
+		theme.bold(`${nerdFont ? "● " : ""}${sanitizeInline(fallback)}${dots}`),
+	);
 }
 
 interface ItemContext {
