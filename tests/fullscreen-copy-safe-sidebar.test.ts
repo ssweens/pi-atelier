@@ -66,7 +66,7 @@ describe("fullscreen Sidebar selection", () => {
 
 		controller.show();
 		tui.render(120);
-		expect(mainWidths.at(-1)).toBe(76);
+		expect(mainWidths.at(-1)).toBe(80);
 
 		closeCustom?.();
 		tui.render(120);

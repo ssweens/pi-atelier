@@ -237,13 +237,13 @@ describe("temporary Resize mode", () => {
 		const h = resizeHarness();
 		h.split.beginResize();
 		h.send("\u001b[C");
-		expect(h.split.getSidebarWidth()).toBe(43);
+		expect(h.split.getSidebarWidth()).toBe(39);
 
 		h.send(press(10));
-		expect(h.split.getSidebarWidth()).toBe(43);
+		expect(h.split.getSidebarWidth()).toBe(39);
 		expect(h.split.isResizing()).toBe(true);
 
-		const dividerX = 120 - 43 + 1;
+		const dividerX = 120 - 39 + 1;
 		h.send(press(dividerX - 1));
 		h.send(motion(70));
 		expect(h.split.getSidebarWidth()).toBe(51);
@@ -254,15 +254,15 @@ describe("temporary Resize mode", () => {
 		const h = resizeHarness();
 		h.split.beginResize();
 		h.send("\u001b[D");
-		expect(h.split.getSidebarWidth()).toBe(45);
+		expect(h.split.getSidebarWidth()).toBe(41);
 		h.send("\u001b[1;2D");
-		expect(h.split.getSidebarWidth()).toBe(49);
+		expect(h.split.getSidebarWidth()).toBe(45);
 		h.send("\u001b");
-		expect(h.split.getSidebarWidth()).toBe(44);
+		expect(h.split.getSidebarWidth()).toBe(40);
 		h.split.beginResize();
 		h.send("\u001b[C");
 		h.send("\r");
-		expect(h.split.getSidebarWidth()).toBe(43);
+		expect(h.split.getSidebarWidth()).toBe(39);
 		expect(h.split.isResizing()).toBe(false);
 	});
 	it("refuses Resize mode when the split is hidden or not attached", () => {
@@ -377,8 +377,8 @@ describe("Pi 0.84 split layout", () => {
 		split.attach(tui);
 		split.show();
 
-		expect(tui.render(120)).toEqual(["main:76"]);
-		expect(widths).toEqual([76]);
+		expect(tui.render(120)).toEqual(["main:80"]);
+		expect(widths).toEqual([80]);
 		split.dispose();
 		expect(renderer.render(120)).toEqual(["main:120"]);
 	});
@@ -391,8 +391,8 @@ describe("Pi 0.84 split layout", () => {
 		split.attach(tui);
 		split.show();
 
-		expect(tui.render(120)).toEqual(["base:76"]);
-		expect(renderer.widths).toEqual([76]);
+		expect(tui.render(120)).toEqual(["base:80"]);
+		expect(renderer.widths).toEqual([80]);
 	});
 
 	it("keeps the main pane bounded while resizing and restores full width when hidden", () => {
@@ -436,7 +436,7 @@ describe("Pi 0.84 split layout", () => {
 		split.show();
 
 		renderer.renderNow();
-		expect(widths.at(-1)).toBe(76);
+		expect(widths.at(-1)).toBe(80);
 		split.setSidebarWidth(72);
 		terminal.columns = 100;
 		renderer.renderNow();
@@ -465,7 +465,7 @@ describe("Pi 0.84 split layout", () => {
 		split.show();
 
 		renderer.render(120);
-		expect(widths.at(-1)).toBe(76);
+		expect(widths.at(-1)).toBe(80);
 		expect(renderer.render).toBe(originalRender);
 
 		split.setSidebarWidth(72);
@@ -515,13 +515,13 @@ describe("Pi 0.84 split layout", () => {
 		split.attach(tui);
 		split.show();
 		current.renderer.render(120);
-		expect(current.widths.at(-1)).toBe(76);
+		expect(current.widths.at(-1)).toBe(80);
 
 		split.hide();
 		current = createRenderer();
 		split.show();
 		current.renderer.render(120);
-		expect(current.widths.at(-1)).toBe(76);
+		expect(current.widths.at(-1)).toBe(80);
 	});
 
 	it("does not overwrite a fullscreen layout installed later", () => {
@@ -559,7 +559,7 @@ describe("Pi 0.84 split layout", () => {
 		const split = disposeAfterTest(createSplitPaneController());
 		split.attach(tui);
 		split.show();
-		expect(tui.render(120)).toEqual(["base:76"]);
+		expect(tui.render(120)).toEqual(["base:80"]);
 
 		split.hide();
 		renderer = new FullscreenRenderer();
@@ -569,7 +569,7 @@ describe("Pi 0.84 split layout", () => {
 		split.hide();
 		renderer = new TuiMainScreen();
 		split.show();
-		expect(tui.render(120)).toEqual(["base:76"]);
+		expect(tui.render(120)).toEqual(["base:80"]);
 	});
 
 	it("restores the prototype renderer on disposal", () => {
@@ -598,7 +598,7 @@ describe("sidebar overlay sizing", () => {
 		expect(h.baseRender).toHaveBeenLastCalledWith(120);
 		expect(split.overlayOptions()).toMatchObject({
 			anchor: "top-right",
-			width: 44,
+			width: 40,
 			maxHeight: "100%",
 			margin: 0,
 			nonCapturing: true,

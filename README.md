@@ -80,7 +80,7 @@ Open `/atelier` or press **F6** to change display settings, control the sidebar,
 | Mode | Behavior |
 | --- | --- |
 | **Manual** (default) | Resize with `Ctrl+Shift+R`, then the arrow keys or by dragging the divider. Enter or mouse release confirms; Escape cancels. Hides below 92 columns and returns at 92. |
-| **Auto** | Collapses when space is tight and reopens when there is room. At the default width it collapses below 124 columns and reopens at 132. Manual resizing is disabled. |
+| **Auto** | Collapses when space is tight and reopens when there is room. At the default width it collapses below 120 columns and reopens at 128. Manual resizing is disabled. |
 
 - Showing or hiding is independent of the mode. A manually hidden sidebar stays hidden when the terminal grows.
 - The preferred width survives terminal resizes and mode changes.

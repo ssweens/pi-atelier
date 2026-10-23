@@ -194,7 +194,7 @@ describe("extension registration", () => {
 		const h = harness();
 		await start(h);
 		await command(h, "sidebar on");
-		expect(h.overlays[0]?.layout()).toMatchObject({ width: 44, nonCapturing: true });
+		expect(h.overlays[0]?.layout()).toMatchObject({ width: 40, nonCapturing: true });
 	});
 
 	it("enters Resize mode with Ctrl+Shift+R only for the active visible sidebar", async () => {
